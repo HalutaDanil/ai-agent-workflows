@@ -1,0 +1,196 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "649d3b85-11c2-4b90-9160-70a60c146cef",
+      "name": "Telegram Trigger",
+      "webhookId": "996e4d40-144b-4ee9-94bd-2da63d7bb522",
+      "credentials": {
+        "telegramApi": {
+          "id": "KiCn4zNLw3M64h7X",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        840,
+        0
+      ],
+      "id": "e8a6f351-be0a-4c66-8366-871051b6021b",
+      "name": "Telegram1",
+      "webhookId": "f58dc4be-afa0-4927-9f5e-6e7c10c56312",
+      "credentials": {
+        "telegramApi": {
+          "id": "KiCn4zNLw3M64h7X",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{ $json.message.chat.id }}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        0
+      ],
+      "id": "7bc7c598-9fa0-44b2-986e-0d829768443f",
+      "name": "Telegram",
+      "webhookId": "dae3df4b-72e4-4bed-a71c-47d877ae769b",
+      "credentials": {
+        "telegramApi": {
+          "id": "KiCn4zNLw3M64h7X",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "Ты карьерный консультант. Твоя задача — помочь пользователю выбрать IT‑специализацию в рамках уже выбранного направления обучения (например, «Разработка ПО»).\n\n## Правила диалога\n\n- Используй историю диалога: если в ней уже есть хотя бы одно твое сообщение, **не повторяй** приветствие и план, а продолжай с того шага, где остановились.\n- Не переходи к следующему шагу, пока пользователь явно не ответил на текущий вопрос.\n- Каждый ответ делай коротким: **максимум 4–5 предложений** и **один вопрос** в конце.\n- Не придумывай факты про пользователя — опирайся только на его ответы. Если информации мало, попроси уточнить.\n\n## План диалога (строго по шагам)\n\n### Шаг 1. Направление обучения\n\nПервый ответ:\n- кратко поприветствуй (1–2 предложения);\n- задай один уточняющий вопрос:  \n  «Какое направление обучения или IT‑направление ты сейчас рассматриваешь?»\n\n### Шаг 2. Предыдущий опыт и достижения\n\nПосле ответа на шаг 1:\n- задай вопрос:  \n  «Расскажи, пожалуйста, о своём предыдущем жизненном опыте и достижениях»;\n- при необходимости можно уточнить 1–2 момента, но не уходи от темы.\n\n### Шаг 3. Опыт отборочного бассейна\n\nПосле ответа на шаг 2:\n- задай вопрос:  \n  «Опиши свой опыт прохождения отборочного бассейна: и субъективные ощущения, и объективные показатели (например, данные из датасета‑лога: “я вошёл в топ‑5 среди 100 человек по времени за АРМ”)».\n\n### Шаг 4. Анализ и рекомендация\n\nКогда есть ответы на шаги 1–3:\n- сделай краткий анализ (2–3 предложения);\n- дай конкретную рекомендацию по специализации (до 3–4 предложений):  \n  какие роли (бэкенд, фронтенд, тестирование и т.п.) и какие языки/технологии подходят, с коротким обоснованием."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        440,
+        0
+      ],
+      "id": "6559a77c-d889-4f09-abf0-1e41f2bbeb50",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "GigaChat/GigaChat-2-Max",
+          "mode": "list",
+          "cachedResultName": "GigaChat/GigaChat-2-Max"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        380,
+        220
+      ],
+      "id": "8e1eff4d-9803-47c3-86d1-3a3ee5fa8d58",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "C58sFvkAdEL7kHs3",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        520,
+        220
+      ],
+      "id": "48eba855-72f5-4883-87d4-79d14956b12c",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "248f5a92-6f14-4771-98c1-0bd4f157c3fe",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2b4458024f2022d6d9ee3d16443899cc8e9d5c25022bca58c7c2ddb4c7c9a30f"
+  },
+  "id": "nFHYgI9US5pX7gh4",
+  "tags": []
+}
