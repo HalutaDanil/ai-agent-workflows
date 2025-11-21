@@ -1,0 +1,269 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        -40
+      ],
+      "id": "34332afb-23a8-4733-95ff-74d5f06558e4",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json }}",
+        "options": {
+          "systemMessage": "Ты - ведущий канала новостей постов из разных каналов по разработку на Golang.\n\nФорма дайджеста должна выглядеть так:\n\n1. Общее саммари о постах в одном абзаце.\n2. Название канала - количество постов\n- пост 1: краткое описание, ссылка\n- пост 2: краткое описание, ссылка\n3. Название канала - количество постов\n- пост 1: краткое описание, ссылка\n- пост 2: краткое описание, ссылка\n4. Название канала - количество постов\n- пост 1: краткое описание, ссылка\n- пост 2: краткое описание, ссылка\n\nПравила:\n- пиши кратко, буквально 2 предложения в описании поста\n- пиши с форматированием от телеграма\n- не нумеруй шаги\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        920,
+        -40
+      ],
+      "id": "e57ed8ff-6dbd-4b1d-b309-8407e63da452",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "GigaChat/GigaChat-2-Max",
+          "mode": "list",
+          "cachedResultName": "GigaChat/GigaChat-2-Max"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        920,
+        200
+      ],
+      "id": "8df54ce0-e72d-4580-8db3-431a34250474",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "C58sFvkAdEL7kHs3",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1003337889915",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1320,
+        -40
+      ],
+      "id": "7cdc7ed5-e2a9-4b4a-8e91-58a9cb914854",
+      "name": "Telegram",
+      "webhookId": "5639c261-730e-4e67-b72e-8036c101f576",
+      "credentials": {
+        "telegramApi": {
+          "id": "KiCn4zNLw3M64h7X",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://fetchrss.com/feed/aSB-I9pNhm1UaSB_OhwCb8kS.rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        320,
+        -200
+      ],
+      "id": "4282b01c-6663-474e-97e5-cc74a3dcc81d",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "url": "https://fetchrss.com/feed/aSB-I9pNhm1UaSCHHk96CREC.rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        -40
+      ],
+      "id": "cc0c654b-469d-4e45-b753-560fa72abd22",
+      "name": "RSS Read1"
+    },
+    {
+      "parameters": {
+        "url": "https://fetchrss.com/feed/aSB-I9pNhm1UaSCLECret7ai.rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        320,
+        200
+      ],
+      "id": "9e717b65-c3cf-43bc-b697-b8c92c390e37",
+      "name": "RSS Read2"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        700,
+        -40
+      ],
+      "id": "b23be2dd-0449-4afb-baf2-68d1a46543db",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        520,
+        -40
+      ],
+      "id": "e113b167-e548-4e73-85ff-48ae19b52ad6",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS Read1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "72447ace-716d-44cb-9086-7bc011d11b45",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2b4458024f2022d6d9ee3d16443899cc8e9d5c25022bca58c7c2ddb4c7c9a30f"
+  },
+  "id": "nFHYgI9US5pX7gh4",
+  "tags": []
+}
