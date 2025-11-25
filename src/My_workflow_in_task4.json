@@ -1,0 +1,354 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -380,
+        -20
+      ],
+      "id": "34332afb-23a8-4733-95ff-74d5f06558e4",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json }}",
+        "options": {
+          "systemMessage": "Ты получаешь один JSON следующего вида:\n{\n\"counts\": [\n\"num_of_vacancies\": count,\n\"skill_1\": count,\n\"skill_2\": count,\n\"skill_3\": count\n]\n}, где:\n- num_of_vacancies — количество проанализированных вакансий.\n- skills_n - навык и цифра после двух точек, сколько раз она попадалась в вакансиях.\n\nТвоя задача:\n- Посмотреть нет ли одинаковых технологий под разными названиями. Если есть, то объединить их, сложив их вхождения\n- ОТСОРИТРОВАТЬ навыки по убыванию количества вхождений.\n- Взять ровно топ‑15 навыков (или меньше, если навыков меньше 15).\n- Написать дайджест строго по шаблону с ФОРМАТИРОВАНИЕМ строго под телеграмм:\n\nНа этой неделе я спарсил N свежих вакансий по DevOps. Самыми популярными являются следующие требования:\n\n    требование 1: количество раз\n\n    требование 2: количество раз\n\n    требование 3: количество раз\n    ...\n\n    требование 15: количество раз\n\nПравила подсчёта:\n- Если разные элементы массива count обозначают одну и ту же технологию (например, \"gitlab ci\" и \"gitlab_ci\"), объедини их в один навык, но количество вхождений должно быть ровно равно сумме цифр после двух точек.\n- Нельзя изменять num_of_vacancies, его нужно просто подставить как есть.\n- НЕ ДОБАВЛЯЙ ничего вне указанного шаблона (никаких выводов, комментариев, смайлов, вступлений и заключений).\n- Если навыков меньше 15, выведи столько строк «требование i: количество раз», сколько навыков есть."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        1220,
+        -40
+      ],
+      "id": "e57ed8ff-6dbd-4b1d-b309-8407e63da452",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "GigaChat/GigaChat-2-Max",
+          "mode": "list",
+          "cachedResultName": "GigaChat/GigaChat-2-Max"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1200,
+        140
+      ],
+      "id": "8df54ce0-e72d-4580-8db3-431a34250474",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "C58sFvkAdEL7kHs3",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1003337889915",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1660,
+        -40
+      ],
+      "id": "7cdc7ed5-e2a9-4b4a-8e91-58a9cb914854",
+      "name": "Telegram",
+      "webhookId": "5639c261-730e-4e67-b72e-8036c101f576",
+      "credentials": {
+        "telegramApi": {
+          "id": "KiCn4zNLw3M64h7X",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.hh.ru/vacancies?professional_role=160&area=1&per_page=10",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        -20
+      ],
+      "id": "7714342c-9129-4671-b2ed-f2e6358c471d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        380,
+        -20
+      ],
+      "id": "bab576e0-9ffb-4cf7-b7ce-756fc5fa1c4b",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $json.items;  \nreturn items.map(v => ({ json: v }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        60,
+        -20
+      ],
+      "id": "305b8693-d028-423f-af77-55ef02a088b0",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.hh.ru/vacancies/{{$json.id}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        580,
+        200
+      ],
+      "id": "cb21d5c3-0627-43c0-8dc8-3d92a86c6c22",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.description }}",
+        "options": {
+          "systemMessage": "Ты извлекаешь список нормализованных профессиональных навыков из ОДНОЙ вакансии DevOps-инженера.\nТвоя задача:\n- внутри одной вакансии не учитывать повторы: если навык упоминается несколько раз, включить его один раз;\n- нормализовать написание (python, питон → python; linux, линукс → linux и т.д.);\n- devops — это не навык, а специализация, его в список не включать;\n\nВерни результат СТРОГО так:\nskill_1,skill_2,skill_3,..."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        80,
+        180
+      ],
+      "id": "6360a147-8953-4a9c-81ed-20d9953ef0f4",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "GigaChat/GigaChat-2-Max",
+          "mode": "list",
+          "cachedResultName": "GigaChat/GigaChat-2-Max"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        120,
+        400
+      ],
+      "id": "a74d0d91-c8ac-4999-9286-80213375cd2c",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "C58sFvkAdEL7kHs3",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst skills = [];\nlet numOfVacancies = 0;\n\nfor (const it of items) {\n  const out = it.json.output;\n  numOfVacancies += 1\n  skills.push(...out.split(\",\"))\n}\n\nreturn [\n  {\n    json: {\n      num_of_vacancies: numOfVacancies,\n      skills: skills\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        -40
+      ],
+      "id": "d587f2c5-30ba-4aa6-82e3-d4ce9c63caae",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const skills = $input.first().json.skills;\nconst counts = {};\n\ncounts[\"num_of_vacancies\"] = $input.first().json.num_of_vacancies\nfor (const skill of skills) {\n  counts[skill] = (counts[skill] || 0) + 1;\n}\n\nreturn [{ json: { counts } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        -40
+      ],
+      "id": "a175273b-20f0-46a0-8fad-26fe3be3c18b",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "35d14a6b-2d94-432c-b342-4513fac7f2bc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2b4458024f2022d6d9ee3d16443899cc8e9d5c25022bca58c7c2ddb4c7c9a30f"
+  },
+  "id": "nFHYgI9US5pX7gh4",
+  "tags": []
+}
