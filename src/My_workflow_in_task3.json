@@ -1,5 +1,5 @@
 {
-  "name": "My workflow",
+  "name": "My workflow 3",
   "nodes": [
     {
       "parameters": {
@@ -12,28 +12,97 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        0,
-        -40
+        -240,
+        240
       ],
-      "id": "34332afb-23a8-4733-95ff-74d5f06558e4",
+      "id": "b42b6ac5-8118-453a-a06c-f2a8abe3e4ae",
       "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://fetchrss.com/feed/1vPNQ9CQW5yt1vPNPcABQ8eZ.rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        80
+      ],
+      "id": "04b6429c-0c27-450d-87dc-c1b757b2340e",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "url": "https://fetchrss.com/feed/1vPNQ9CQW5yt1vPNQsFGw2K3.rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        20,
+        240
+      ],
+      "id": "cbcb4dfd-d83a-452c-aab8-bc538b5bdd6d",
+      "name": "RSS Read1"
+    },
+    {
+      "parameters": {
+        "url": "https://fetchrss.com/feed/1vPNQ9CQW5yt1vPNSIFIBEWw.rss",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        480
+      ],
+      "id": "7cf99d3a-68c5-4a94-8301-b2f6a73e1b31",
+      "name": "RSS Read2"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        500,
+        280
+      ],
+      "id": "5f086b21-6ea6-4bca-b72b-c0b4b78adbac",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "numberInputs": 3
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        320,
+        280
+      ],
+      "id": "b8ba2543-fde3-47f2-be00-7f4b11b5397f",
+      "name": "Merge"
     },
     {
       "parameters": {
         "promptType": "define",
         "text": "={{ $json }}",
         "options": {
-          "systemMessage": "Ты - ведущий канала новостей постов из разных каналов по разработку на Golang.\n\nФорма дайджеста должна выглядеть так:\n\n1. Общее саммари о постах в одном абзаце.\n2. Название канала - количество постов\n- пост 1: краткое описание, ссылка\n- пост 2: краткое описание, ссылка\n3. Название канала - количество постов\n- пост 1: краткое описание, ссылка\n- пост 2: краткое описание, ссылка\n4. Название канала - количество постов\n- пост 1: краткое описание, ссылка\n- пост 2: краткое описание, ссылка\n\nПравила:\n- пиши кратко, буквально 2 предложения в описании поста\n- пиши с форматированием от телеграма\n- не нумеруй шаги\n"
+          "systemMessage": "Ты - ведущий канала новостей постов из разных каналов по разработку на Golang.\n\nФорма дайджеста должна выглядеть так:\n\n1. Общее саммари о постах в одном абзаце.\n2. Название канала - количество постов\n- пост 1: краткое описание, ссылка\n- пост 2: краткое описание, ссылка\n3. Название канала - количество постов\n- пост 1: краткое описание, ссылка\n- пост 2: краткое описание, ссылка\n4. Название канала - количество постов\n- пост 1: краткое описание, ссылка\n- пост 2: краткое описание, ссылка\n\nПравила:\n- НЕ ЗАБЫВАЙ ПРО САММАРИ В ПЕРВОМ АБЗАЦЕ\n- Верни результат строго как обычный текст без Markdown, без HTML, без использования *, _, `, [, ], <, > и других символов форматирования\n- РАЗМЕРЫ ТВОЕГО СООБЩЕНИЯ ДОЛЖНЫ БЫТЬ В РАМКАХ ОДНОГО СООБЩЕНИЯ В ТГ\n- пиши кратко, буквально 2 предложения в описании поста\n- ПИШИ С ФОРМАТИРОВАНИЕМ ТГ\n- не нумеруй шаги\n"
         }
       },
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.8,
       "position": [
-        920,
-        -40
+        680,
+        240
       ],
-      "id": "e57ed8ff-6dbd-4b1d-b309-8407e63da452",
-      "name": "AI Agent"
+      "id": "480d2a53-f579-4e1d-b814-2c5d3ec15ae8",
+      "name": "AI Agent1"
     },
     {
       "parameters": {
@@ -48,11 +117,11 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.2,
       "position": [
-        920,
-        200
+        680,
+        480
       ],
-      "id": "8df54ce0-e72d-4580-8db3-431a34250474",
-      "name": "OpenAI Chat Model",
+      "id": "6a179199-ff5c-41d1-a21a-2c2c55592622",
+      "name": "OpenAI Chat Model1",
       "credentials": {
         "openAiApi": {
           "id": "C58sFvkAdEL7kHs3",
@@ -62,7 +131,7 @@
     },
     {
       "parameters": {
-        "chatId": "-1003337889915",
+        "chatId": "-1002990016924",
         "text": "={{ $json.output }}",
         "additionalFields": {
           "appendAttribution": false
@@ -71,11 +140,11 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        1320,
-        -40
+        1080,
+        240
       ],
-      "id": "7cdc7ed5-e2a9-4b4a-8e91-58a9cb914854",
-      "name": "Telegram",
+      "id": "1eb4204f-43d7-4968-a24c-552fd0c3db21",
+      "name": "Telegram2",
       "webhookId": "5639c261-730e-4e67-b72e-8036c101f576",
       "credentials": {
         "telegramApi": {
@@ -83,75 +152,6 @@
           "name": "Telegram account"
         }
       }
-    },
-    {
-      "parameters": {
-        "url": "https://fetchrss.com/feed/aSB-I9pNhm1UaSB_OhwCb8kS.rss",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.rssFeedRead",
-      "typeVersion": 1.1,
-      "position": [
-        320,
-        -200
-      ],
-      "id": "4282b01c-6663-474e-97e5-cc74a3dcc81d",
-      "name": "RSS Read"
-    },
-    {
-      "parameters": {
-        "url": "https://fetchrss.com/feed/aSB-I9pNhm1UaSCHHk96CREC.rss",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.rssFeedRead",
-      "typeVersion": 1.1,
-      "position": [
-        260,
-        -40
-      ],
-      "id": "cc0c654b-469d-4e45-b753-560fa72abd22",
-      "name": "RSS Read1"
-    },
-    {
-      "parameters": {
-        "url": "https://fetchrss.com/feed/aSB-I9pNhm1UaSCLECret7ai.rss",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.rssFeedRead",
-      "typeVersion": 1.1,
-      "position": [
-        320,
-        200
-      ],
-      "id": "9e717b65-c3cf-43bc-b697-b8c92c390e37",
-      "name": "RSS Read2"
-    },
-    {
-      "parameters": {
-        "aggregate": "aggregateAllItemData",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.aggregate",
-      "typeVersion": 1,
-      "position": [
-        700,
-        -40
-      ],
-      "id": "b23be2dd-0449-4afb-baf2-68d1a46543db",
-      "name": "Aggregate"
-    },
-    {
-      "parameters": {
-        "numberInputs": 3
-      },
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 3.1,
-      "position": [
-        520,
-        -40
-      ],
-      "id": "e113b167-e548-4e73-85ff-48ae19b52ad6",
-      "name": "Merge"
     }
   ],
   "pinData": {},
@@ -171,28 +171,6 @@
           },
           {
             "node": "RSS Read1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "OpenAI Chat Model": {
-      "ai_languageModel": [
-        [
-          {
-            "node": "AI Agent",
-            "type": "ai_languageModel",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "AI Agent": {
-      "main": [
-        [
-          {
-            "node": "Telegram",
             "type": "main",
             "index": 0
           }
@@ -236,7 +214,7 @@
       "main": [
         [
           {
-            "node": "AI Agent",
+            "node": "AI Agent1",
             "type": "main",
             "index": 0
           }
@@ -253,17 +231,39 @@
           }
         ]
       ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Telegram2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": false,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "72447ace-716d-44cb-9086-7bc011d11b45",
+  "versionId": "0c3adcf3-6a77-4652-94a2-40cb74c969fe",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "2b4458024f2022d6d9ee3d16443899cc8e9d5c25022bca58c7c2ddb4c7c9a30f"
   },
-  "id": "nFHYgI9US5pX7gh4",
+  "id": "SK3OxwfNO4JIKviV",
   "tags": []
 }
