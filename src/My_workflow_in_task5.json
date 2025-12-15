@@ -1,0 +1,606 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f260d586-f417-40d6-bfad-38d12317fc04",
+      "name": "Telegram Trigger",
+      "webhookId": "19b98842-3dbc-4d6b-b67c-2b0819c6322f",
+      "credentials": {
+        "telegramApi": {
+          "id": "zLai6jzVSsbkFcTP",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatHistory }}",
+        "options": {
+          "systemMessage": "ты - ии-агент, который составляет план обучения для пользователя. Ты получаешь на вход историю общения с пользователем.\n\nПОРЯДОК ДЕЙСТВИЙ:\n1. Приветствуешь и задаешь вопрос: \"Чему бы ты хотел научиться\" в рамках работы над текущим учебным проектом или в рамках подготовки к собеседованию и трудоустройству, уточняет уровень владения темой и ждет ответ пользователя.\n2. Опираясь на ответ пользователя, формируешь контент-план в виде списка тем для изучения. Каждая тема содержит в себе перечень основных понятий. СТРОГО В ТАКОМ ФОРМАТЕ:\nТема 1\n- понятие 1\n-понятие 2\n...\nТема 2\n- понятие 1\n...\n3. После того как план обучения готов, ты ожидаешь подтверждение от пользователя и исходя из этого:\nа) ЕСЛИ ПОЛЬЗОВАТЕЛЬ ПОДТВЕРДИЛ - берешь из своей памяти план и отвечаешь СТРОГО им с ДОБАВЛЕНИЕМ в конце строки \"finalversion\" \nб) ЕСЛИ ПОЛЬЗОВАТЕЛЬ НЕ ПОДТВЕРДИЛ - правишь план и высылаешь новый \n\nПРАВИЛА:\n- ИСПОЛЬЗУЙ ФОРМАТИРОВАНИЕ ТОЛЬКО ТЕЛЕГРАММ\n- учитывай размер своих сообщений, они не должны превышать ограничения телеграмма по количеству символов"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "a1b8895d-08b3-4369-bda0-e51aa4ef0c60",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "GigaChat/GigaChat-2-Max",
+          "mode": "list",
+          "cachedResultName": "GigaChat/GigaChat-2-Max"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        384,
+        208
+      ],
+      "id": "b7161c95-2eb7-4a17-8518-048b506f85c0",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "DszHJZruUuWNpTKi",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7341009941",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1008,
+        -160
+      ],
+      "id": "156f0015-eb68-4354-ae5b-139c623aa5c4",
+      "name": "Send a text message",
+      "webhookId": "7ba698cd-5aa1-414f-b99c-8ab2ef15f5ef",
+      "credentials": {
+        "telegramApi": {
+          "id": "zLai6jzVSsbkFcTP",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4decd68a-05ee-4733-8600-49b2a33fa14c",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "=finalversion",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "2a170f4c-a148-4f21-a55f-1bf9875f47da",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $getWorkflowStaticData('global');\n\nif (!data.chatHistory) {\n  data.chatHistory = [];\n}\n\ndata.chatHistory.push({\n  role: 'user',\n  content: $input.first().json.message.text,\n});\n\nconst itemOut = {\n  json: { \n    chatHistory: data.chatHistory,  \n  },\n};\n\nreturn [itemOut];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "76377c03-8e4f-4ae7-93f1-c9fa17376fb5",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $getWorkflowStaticData('global');\n\nif (!data.chatHistory) {\n  data.chatHistory = [];\n}\n\nconst messageText = $input.first().json.output\n\ndata.chatHistory.push({\n  role: \"ai\",\n  content: messageText,\n});\n\nreturn data.chatHistory"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        208
+      ],
+      "id": "a18936a8-7461-4c2c-a41f-d9b8a52140d5",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.output;\nconst cleaned = text.replace('finalversion', '').trim();\nconst topicBlocks = cleaned.split('\\n\\n'); \nconst newItems = [];\n\nfor (let i = 0; i < topicBlocks.length; i++) {\n  const block = topicBlocks[i];\n  const lines = block.split('\\n'); \n\n  if (lines.length < 2) continue;\n\n  for (let j = 1; j < lines.length; j++) {\n    const line = lines[j].trim();\n  \n    if (line === '') continue;\n\n    newItems.push({\n      json: {\n        topic: line,\n      },\n    });\n  }\n}\n\nreturn newItems;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        144
+      ],
+      "id": "ef7b5cc9-a831-43a6-8e89-aa16c0dc665a",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.topic }}",
+        "options": {
+          "systemMessage": "Ты — ИИ-агент внутри n8n. Если для ответа нужны актуальные данные из интернета или новости, ты НЕ отвечаешь сразу. Вместо этого ты пишешь строку ровно в формате tavily(query=\"...\"), где в кавычках — краткий поисковый запрос. Никакого другого текста."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1216,
+        144
+      ],
+      "id": "ac2ae7d0-89c9-4fbc-b554-3a10270f2686",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "GigaChat/GigaChat-2-Max",
+          "mode": "list",
+          "cachedResultName": "GigaChat/GigaChat-2-Max"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1200,
+        352
+      ],
+      "id": "f87eb741-0fd5-4355-b241-2cf3f18443e0",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "DszHJZruUuWNpTKi",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputItems = $input.all();\nconst newItems = [];\nconst tavilyPattern = /^tavily\\(query=\"(.+)\"\\)\\s*$/;\n\nfor (const item of inputItems) {\n  const text = item.json.output;\n  const match = text.match(tavilyPattern);\n  \n  if (match) {\n    newItems.push({\n      json: {\n        is_valid: true,\n        tavilyQuery: match[1], \n      },\n    });\n  } else {\n    newItems.push({\n      json: {\n        is_valid: false,\n        text: text,\n      },\n    });\n  }\n}\n\nreturn newItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        144
+      ],
+      "id": "ad67ff0a-774e-43a7-984b-0395a215d1c1",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a85ef4c4-860d-47e0-a757-7372bb779005",
+              "leftValue": "={{ $json.is_valid }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1776,
+        144
+      ],
+      "id": "d784b35b-4c87-4d68-9320-b53deb5c440a",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "chatId": "7341009941",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2352,
+        304
+      ],
+      "id": "601f7f61-5a2d-4198-b695-46fb15e6a9a5",
+      "name": "Send a text message1",
+      "webhookId": "767dd578-995c-44fa-bc87-5a956022f1a2",
+      "credentials": {
+        "telegramApi": {
+          "id": "zLai6jzVSsbkFcTP",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7341009941",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2768,
+        -16
+      ],
+      "id": "10ba58b2-9a3f-4fe3-85cd-84c06ede9caf",
+      "name": "Send a text message2",
+      "webhookId": "7ba698cd-5aa1-414f-b99c-8ab2ef15f5ef",
+      "credentials": {
+        "telegramApi": {
+          "id": "zLai6jzVSsbkFcTP",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemMessage": "переделай текст на ФОРМАТИРОВАНИЕ ТОЛЬКО ТЕЛЕГРАММ \nВАЖНО: \n- НЕ используй подчеркивание (_) для выделения — используй вместо этого **жирный текст** или просто `код`\n- НЕ используй символ * в начале или конце слова, кроме как для **жирного текста**\n- Не оставляй незакрытых скобок, кавычек, звёздочек\n- Если нужно вывести код или команду, используй обратные кавычки: `команда`\n- Максимум форматирования: только **жирный** и `код`"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2000,
+        304
+      ],
+      "id": "8eb1ec5e-ac22-4bb7-84aa-6ec7e193c13a",
+      "name": "AI Agent3"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "GigaChat/GigaChat-2-Max",
+          "mode": "list",
+          "cachedResultName": "GigaChat/GigaChat-2-Max"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1968,
+        512
+      ],
+      "id": "4157018d-815a-44b6-bcbd-53deab5d03f8",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "DszHJZruUuWNpTKi",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"Authorization\": \"Bearer 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\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n   \"query\": \"{{$json.tavilyQuery}}\",\n   \"search_depth\": \"basic\",\n   \"include_answer\": true\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2128,
+        -16
+      ],
+      "id": "4907def5-cfa9-40d8-b57c-30bb1f6cb98e",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Исходный вопрос пользователя:\n\n{{ $json.query }}\n\nОтвет Tavily (JSON):\n\n{{ JSON.stringify($json.results, null, 2) }}\n\nСформулируй лаконичный ответ пользователю по этому вопросу.",
+        "options": {
+          "systemMessage": "Ты получаешь результаты веб-поиска Tavily в JSON.\n\nИспользуй поле answer и results, чтобы дать пользователю краткий, понятный ответ на его исходный вопрос.\n\nОбязательно опирайся только на информацию из Tavily, не придумывай факты."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2384,
+        -16
+      ],
+      "id": "07b115dc-1fef-46be-ae9f-4a84e52ad93c",
+      "name": "AI Agent4"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "GigaChat/GigaChat-2-Max",
+          "mode": "list",
+          "cachedResultName": "GigaChat/GigaChat-2-Max"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2384,
+        160
+      ],
+      "id": "0f751bbf-6e48-4564-b61a-026e8e415355",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "DszHJZruUuWNpTKi",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent3": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent4": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "02e905ae-b2cb-4b50-b173-5c340681178a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a51cc8ef389c5c47d49836a4d9a351861c88363c9024895fa14a1996cc9851c0"
+  },
+  "id": "BYDWPkIXyBCo7KL5",
+  "tags": []
+}
