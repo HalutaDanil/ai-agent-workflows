@@ -1,0 +1,723 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "load",
+        "memoryKey": {
+          "__rl": true,
+          "value": "vector_store_key",
+          "mode": "list",
+          "cachedResultName": "vector_store_key"
+        },
+        "prompt": "={{ $json.question }}",
+        "topK": 2,
+        "includeDocumentMetadata": false
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        -544
+      ],
+      "id": "b5f82d71-1ba8-4b39-81f1-f3b6c80073ce",
+      "name": "Simple Vector Store"
+    },
+    {
+      "parameters": {
+        "modelName": "ai-forever/ru-en-RoSBERTa",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsHuggingFaceInference",
+      "typeVersion": 1,
+      "position": [
+        64,
+        -336
+      ],
+      "id": "06d7f65c-be3d-4ffc-974a-a3121a5b190c",
+      "name": "Embeddings HuggingFace Inference",
+      "credentials": {
+        "huggingFaceApi": {
+          "id": "4knqGFFEy5Bs0vDd",
+          "name": "HuggingFaceApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1168,
+        -272
+      ],
+      "id": "7575f1d8-7b03-43bb-8c53-b9291ac100c2",
+      "name": "Telegram Trigger",
+      "webhookId": "71ff6a4f-8289-46bf-8219-c7184dbff633",
+      "credentials": {
+        "telegramApi": {
+          "id": "pz5C0x13t3hNZptc",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=вопрос пользователя: \n{{ $json.question }}\nответ векторного хранилища:\n{{ $json.pageContent[0] }}",
+        "options": {
+          "systemMessage": "=Ты отвечаешь на вопросы пользователя, используя только предоставленный контекст из векторного хранилища.\n1. Внимательно прочитай вопрос пользователя и сначала пойми, что именно от тебя хотят.\n2. Используй только факты и формулировки из контекста. Не придумывай детали и не делай выводов, которые явно не следуют из текста.\n3. Если контекст не содержит информации, необходимой для точного ответа, явно напиши, что нужных данных нет в хранилище, и не пытайся угадать.\n4. Перед тем как ответить, проверь, что твой ответ действительно:\n– опирается на приведённые фрагменты;\n– соответствует формулировке вопроса;\n– не противоречит никаким данным из контекста.\n- Отвечай кратко, по сути вопроса"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1792,
+        -288
+      ],
+      "id": "166b78ef-8a17-4237-ae5d-e6281aab1110",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "GigaChat/GigaChat-2-Max",
+          "mode": "list",
+          "cachedResultName": "GigaChat/GigaChat-2-Max"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1792,
+        -96
+      ],
+      "id": "0aa160e6-0e26-416e-8557-d8f79f89566d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "K4iK2aJrFWx5pZnt",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "7341009941",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2160,
+        -288
+      ],
+      "id": "7ea462d6-8f17-485d-8c39-a5befdca5785",
+      "name": "Send a text message",
+      "webhookId": "0b308218-d1b0-4f3c-9516-50907eeeab71",
+      "credentials": {
+        "telegramApi": {
+          "id": "pz5C0x13t3hNZptc",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1216,
+        -288
+      ],
+      "id": "6783a07e-4242-4030-8dd1-47c35ae6f1d8",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "document.pageContent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -544
+      ],
+      "id": "0242e251-0cd5-4b13-a845-2d085aff83d4",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "pageContent"
+            },
+            {
+              "fieldToAggregate": "message.text",
+              "renameField": true,
+              "outputFieldName": "question"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        -288
+      ],
+      "id": "3582f89e-0f41-4d38-a4a0-1b1f1debfcdb",
+      "name": "Aggregate1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "тебе поступает вопрос от пользователя, который ты должен переформулировать на три вопроса так, чтобы найти ответ на него в векторном хранилище. итоговые вопрсы должны быть каждый на новой строке. (в векторном хранилище лежит пять вакансий, резюме и результаты оценки личностного потенцила человека)"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -928,
+        -800
+      ],
+      "id": "775fcd76-fbff-4373-a24a-35ab58fa6bce",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "GigaChat/GigaChat-2-Max",
+          "mode": "list",
+          "cachedResultName": "GigaChat/GigaChat-2-Max"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -928,
+        -592
+      ],
+      "id": "91abdad2-d0b3-4447-a59a-bac13e098e65",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "K4iK2aJrFWx5pZnt",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const text = $input.first().json.output;\nconst lines = text.split('\\n');\nconst items = [];\n\nfor (let line of lines) {\n  line = line.trim();\n\n  items.push({ json: { question: line } });\n}\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -560,
+        -800
+      ],
+      "id": "6dae37d3-d00c-4663-bafb-f8d03034d1b6",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.question }}",
+                    "rightValue": "1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "ac89ee2e-5de7-4854-a16c-bbcc2b564253"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b5484488-61b9-4e72-b3d5-ecb5c195bc54",
+                    "leftValue": "={{ $json.question }}",
+                    "rightValue": "2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "764f63aa-5a09-4a53-82f6-ec78e7b605b8",
+                    "leftValue": "={{ $json.question }}",
+                    "rightValue": "3",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -352,
+        -816
+      ],
+      "id": "178317af-3ecc-46cc-9e43-553fca834ca5",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        },
+        "prompt": "={{ $json.question }}",
+        "topK": 2
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        -1136
+      ],
+      "id": "35498776-b850-4019-baa8-1fe3fbccc9e3",
+      "name": "Simple Vector Store1"
+    },
+    {
+      "parameters": {
+        "mode": "load",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        },
+        "prompt": "={{ $json.question }}",
+        "topK": 2
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        -800
+      ],
+      "id": "22e3ebda-0fb5-4ae5-8776-5a1a61b8986a",
+      "name": "Simple Vector Store2"
+    },
+    {
+      "parameters": {
+        "modelName": "ai-forever/ru-en-RoSBERTa",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsHuggingFaceInference",
+      "typeVersion": 1,
+      "position": [
+        144,
+        -640
+      ],
+      "id": "b08d42fb-9043-46fc-8a1e-08eac242bcb2",
+      "name": "Embeddings HuggingFace Inference1",
+      "credentials": {
+        "huggingFaceApi": {
+          "id": "4knqGFFEy5Bs0vDd",
+          "name": "HuggingFaceApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "ai-forever/ru-en-RoSBERTa",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsHuggingFaceInference",
+      "typeVersion": 1,
+      "position": [
+        144,
+        -928
+      ],
+      "id": "7ff3f767-c69b-4297-921a-51981713d1a5",
+      "name": "Embeddings HuggingFace Inference2",
+      "credentials": {
+        "huggingFaceApi": {
+          "id": "4knqGFFEy5Bs0vDd",
+          "name": "HuggingFaceApi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        672,
+        -960
+      ],
+      "id": "f609d3c8-4549-48ab-9c6c-7bb9e9e1e9dd",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "document.pageContent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -1136
+      ],
+      "id": "c19f74ac-35bb-4347-b88c-3669567af00c",
+      "name": "Aggregate2"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        400,
+        -800
+      ],
+      "id": "9f8fdf2e-73ed-4c44-9a62-5c5612e2fa08",
+      "name": "Aggregate3"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        864,
+        -528
+      ],
+      "id": "bb2b5284-c7c7-4f19-9a26-40cb0d1def66",
+      "name": "Merge2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Embeddings HuggingFace Inference": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Simple Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Simple Vector Store2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings HuggingFace Inference1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings HuggingFace Inference2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store2": {
+      "main": [
+        [
+          {
+            "node": "Aggregate3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate2": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate3": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "60dc32d9-eb5c-41f2-96f6-10649d3a4115",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "46ba55b86d6850341e00cacd09b9a5f2737f4827050fab1ca0c1320f91c17360"
+  },
+  "id": "eeI3l4NoemWdBgaB",
+  "tags": []
+}
