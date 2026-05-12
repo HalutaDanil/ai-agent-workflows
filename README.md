@@ -27,16 +27,6 @@ Building automated AI workflows using the n8n platform. Implemented data process
 | task5 | Conditional logic in workflow |
 | task6 | Complex multi-step automation |
 
-### 🚀 Quick Start
-
-```
-Workflow Architecture:
-[Trigger] → [Processing] → [LLM] → [Filter] → [Action]
-                ↓
-         [Conditional Branch]
-                ↓
-         [Logging]
-```
 
 ---
 
@@ -63,16 +53,6 @@ Workflow Architecture:
 | task5 | Условная логика в воркфлоу |
 | task6 | Сложная многошаговая автоматизация |
 
-### 🚀 Быстрый старт
-
-```
-Архитектура воркфлоу:
-[Триггер] → [Обработка] → [LLM] → [Фильтр] → [Действие]
-                ↓
-         [Условная ветка]
-                ↓
-         [Логирование]
-```
 
 ---
 
