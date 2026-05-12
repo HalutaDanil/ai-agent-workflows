@@ -19,11 +19,24 @@ Building automated AI workflows using the n8n platform. Implemented data process
 
 ### ✨ Features
 
-| Task | Description |\n|------|-------------|\n| task2 | Basic workflow with trigger and processing |\n| task3 | External API integration |\n| task4 | JSON data processing |\n| task5 | Conditional logic in workflow |\n| task6 | Complex multi-step automation |
+| Task | Description |
+|------|-------------|
+| task2 | Basic workflow with trigger and processing |
+| task3 | External API integration |
+| task4 | JSON data processing |
+| task5 | Conditional logic in workflow |
+| task6 | Complex multi-step automation |
 
 ### 🚀 Quick Start
 
-```\nWorkflow Architecture:\n[Trigger] → [Processing] → [LLM] → [Filter] → [Action]\n                ↓\n         [Conditional Branch]\n                ↓\n         [Logging]\n```
+```
+Workflow Architecture:
+[Trigger] → [Processing] → [LLM] → [Filter] → [Action]
+                ↓
+         [Conditional Branch]
+                ↓
+         [Logging]
+```
 
 ---
 
@@ -42,11 +55,24 @@ Building automated AI workflows using the n8n platform. Implemented data process
 
 ### ✨ Возможности
 
-| Задача | Описание |\n|--------|----------|\n| task2 | Базовый воркфлоу с триггером и обработкой |\n| task3 | Интеграция с внешним API |\n| task4 | Обработка данных из JSON |\n| task5 | Условная логика в воркфлоу |\n| task6 | Сложная многошаговая автоматизация |
+| Задача | Описание |
+|--------|----------|
+| task2 | Базовый воркфлоу с триггером и обработкой |
+| task3 | Интеграция с внешним API |
+| task4 | Обработка данных из JSON |
+| task5 | Условная логика в воркфлоу |
+| task6 | Сложная многошаговая автоматизация |
 
 ### 🚀 Быстрый старт
 
-```\nАрхитектура воркфлоу:\n[Триггер] → [Обработка] → [LLM] → [Фильтр] → [Действие]\n                ↓\n         [Условная ветка]\n                ↓\n         [Логирование]\n```
+```
+Архитектура воркфлоу:
+[Триггер] → [Обработка] → [LLM] → [Фильтр] → [Действие]
+                ↓
+         [Условная ветка]
+                ↓
+         [Логирование]
+```
 
 ---
 
